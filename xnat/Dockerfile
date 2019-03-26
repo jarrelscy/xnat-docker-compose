@@ -10,12 +10,12 @@ ARG XNAT_DATASOURCE_USERNAME=xnat
 ARG XNAT_DATASOURCE_PASSWORD=xnat
 ARG XNAT_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQL9Dialect
 ARG TOMCAT_XNAT_FOLDER=ROOT
-ARG SMTP_ENABLED=false
-ARG SMTP_HOSTNAME=fake.fake
-ARG SMTP_PORT
-ARG AMTP_AUTH
-ARG SMTP_USERNAME
-ARG SMTP_PASSWORD
+ARG SMTP_ENABLED=true
+ARG SMTP_HOSTNAME=ac-ex01.alfred.org.au
+ARG SMTP_PORT=25
+ARG SMTP_AUTH=false
+ARG SMTP_USERNAME=
+ARG SMTP_PASSWORD=
 
 ADD make-xnat-config.sh /usr/local/bin/make-xnat-config.sh
 ADD wait-for-postgres.sh /usr/local/bin/wait-for-postgres.sh

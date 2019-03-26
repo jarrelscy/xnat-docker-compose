@@ -1,6 +1,10 @@
 # Created by .ignore support plugin (hsz.mobi)
 *.swp
 *.swo
+*.bak
 postgres-data*
 xnat-data*
 webapps/
+hasher/secret.py
+.gradle/
+hasher/__pycache__/
