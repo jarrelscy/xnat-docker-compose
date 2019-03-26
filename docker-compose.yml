@@ -4,14 +4,14 @@ services:
     build:
       context: ./xnat
       args:
-        XNAT_VER: '1.7.4.1'
-        SMTP_ENABLED: 'false'
-        SMTP_HOSTNAME: fake.fake
-        SMTP_PORT:
-        AMTP_AUTH:
-        SMTP_USERNAME:
+        XNAT_VER: '1.7.5.3'
+        SMTP_ENABLED: 'true'
+        SMTP_HOSTNAME: 'smtp.gmail.com'
+        SMTP_PORT: 587
+        SMTP_AUTH: 'false'
+        SMTP_USERNAME: 
         SMTP_PASSWORD:
-        XNAT_DATASOURCE_DRIVER: 'org.postgresql.Driver'
+        XNAT_DATASOURCE_DIVER: 'org.postgresql.Driver'
         XNAT_DATASOURCE_URL: 'jdbc:postgresql://xnat-db/xnat'
         XNAT_DATASOURCE_USERNAME: 'xnat'
         XNAT_DATASOURCE_PASSWORD: 'xnat'
@@ -22,22 +22,29 @@ services:
     ports:
       - "8081:8080"
       - "8000:8000"
-    volumes:
-      - ./xnat-data/home/logs:/data/xnat/home/logs
-      - ./xnat-data/home/plugins:/data/xnat/home/plugins
-      - ./xnat-data/archive:/data/xnat/archive
-      - ./xnat-data/build:/data/xnat/build
+      - "8104:8104"
+      - "8105:8105"
+    volumes:      
+      - /data/shared/temp/xnat/home/logs:/data/xnat/home/logs
+      - /data/shared/temp/xnat/home/plugins:/data/xnat/home/plugins
+      - /data/shared/temp/xnat/archive:/data/xnat/archive
+      - /data/shared/temp/xnat/prearchive:/data/xnat/prearchive
+      - /data/shared.temp/xnat/build:/data/xnat/build
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - xnat-db
     environment:
       - CATALINA_OPTS=-Xms128m -Xmx1024m -Dxnat.home=/data/xnat/home -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
       - XNAT_HOME=/data/xnat/home
+    extra_hosts:
+      - "xnat.monash.edu:115.146.84.154"
 
   xnat-db:
     build: ./postgres
     expose:
       - "5432"
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
 
@@ -50,6 +57,18 @@ services:
     links:
       - xnat-web
 
+  xnat-hasher:
+    build: ./hasher
+    ports:
+      - "127.0.0.1:8888:8888"
+    volumes:      
+      - /data/xnat/home/logs:/data/xnat/home/logs
+    expose:
+      - "8888"
+    links:
+      - xnat-web
+      - xnat-db
+      
   # prometheus:
   #   image: prom/prometheus
   #   volumes:

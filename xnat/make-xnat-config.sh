@@ -20,8 +20,8 @@ if [ ! -f $XNAT_HOME/config/prefs-init.ini ]; then
 [siteConfig]
 
 siteId=XNAT
-siteUrl=http://localhost
-adminEmail=fake@fake.fake
+siteUrl=http://AHMLDICOM01.baysidehealth.intra
+adminEmail=jarrelscy@gmail.com
 
 archivePath=/data/xnat/archive
 prearchivePath=/data/xnat/prearchive
