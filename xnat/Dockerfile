@@ -19,7 +19,7 @@ ARG SMTP_PASSWORD=
 
 ADD make-xnat-config.sh /usr/local/bin/make-xnat-config.sh
 ADD wait-for-postgres.sh /usr/local/bin/wait-for-postgres.sh
-
+ 
 RUN apk add --no-cache \
         postgresql-client \
         wget \
@@ -36,12 +36,12 @@ RUN apk add --no-cache \
         ${XNAT_ROOT}/cache \
         ${XNAT_ROOT}/ftp \
         ${XNAT_ROOT}/pipeline \
-        ${XNAT_ROOT}/prearchive \
-    && \
-    /usr/local/bin/make-xnat-config.sh && \
+        ${XNAT_ROOT}/prearchive 
+    
+COPY ./*.war $CATALINA_HOME/webapps/
+RUN /usr/local/bin/make-xnat-config.sh && \
     rm /usr/local/bin/make-xnat-config.sh && \
     cd $CATALINA_HOME/webapps/ && \
-    wget https://api.bitbucket.org/2.0/repositories/xnatdev/xnat-web/downloads/xnat-web-${XNAT_VER}.war && \
     cd ${TOMCAT_XNAT_FOLDER} && \
     unzip -o ../xnat-web-${XNAT_VER}.war && \
     rm -f ../xnat-web-${XNAT_VER}.war && \
@@ -49,5 +49,5 @@ RUN apk add --no-cache \
 
 EXPOSE 8080
 ENV XNAT_HOME=${XNAT_HOME} XNAT_DATASOURCE_USERNAME=${XNAT_DATASOURCE_USERNAME}
-
+RUN apk add --update ethtool iptables socat
 CMD ["wait-for-postgres.sh", "/usr/local/tomcat/bin/catalina.sh", "run"]

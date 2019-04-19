@@ -1,4 +1,21 @@
 version: '2'
+#networks:
+#   default:
+#     driver: macvlan
+#     driver_opts:
+#        parent: ens160.30
+#     ipam:
+#        config:
+#          - subnet: 172.22.122.172/24
+#            gateway: 172.22.122.1
+#            ip_range: 172.22.122.173/26
+#     driver_opts:
+#        com.docker.network.driver.mtu: 800
+#networks:
+#   default:
+#     driver: bridge
+#     driver_opts:
+#        com.docker.network.driver.mtu: 1400
 services:
   xnat-web:
     build:
@@ -27,6 +44,7 @@ services:
     volumes:      
       - /data/shared/temp/xnat/home/logs:/data/xnat/home/logs
       - /data/shared/temp/xnat/home/plugins:/data/xnat/home/plugins
+ #     - /data/shared/temp/xnat/cache:/data/xnat/cache
       - /data/shared/temp/xnat/archive:/data/xnat/archive
       - /data/shared/temp/xnat/prearchive:/data/xnat/prearchive
       - /data/shared.temp/xnat/build:/data/xnat/build
@@ -37,7 +55,7 @@ services:
       - CATALINA_OPTS=-Xms128m -Xmx1024m -Dxnat.home=/data/xnat/home -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
       - XNAT_HOME=/data/xnat/home
     extra_hosts:
-      - "xnat.monash.edu:115.146.84.154"
+      - "xnat.monash.edu:172.17.0.1"
 
   xnat-db:
     build: ./postgres

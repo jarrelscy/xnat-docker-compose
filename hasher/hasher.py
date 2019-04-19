@@ -28,17 +28,21 @@ def process(arg):
     return hashlib.sha1((arg+fh+secret).encode('ascii', 'ignore')).hexdigest()
 class MainHandler(tornado.web.RequestHandler):
     async def get(self, arg):
-        f.write(str(datetime.datetime.now()) + ': '+ arg+'\n')
+        f.write(str(datetime.datetime.now()) + ': Main : '+ arg+'\n')
         f.flush()
         self.write(process(arg))
-
+class SplitDotHandler(tornado.web.RequestHandler):
+    async def get(self, arg):
+        f.write(str(datetime.datetime.now()) + ': SplitDot : '+ arg+'\n')
+        f.flush()
+        self.write(arg.split('.')[0])
         
 class CheckedMainHandler(tornado.web.RequestHandler):
     async def get(self, arg):
         #conn = await asyncpg.connect(connstr)
         try:
             conn = await self.application.pool.acquire()
-            f.write(str(datetime.datetime.now()) + ': '+ arg+'\n')
+            f.write(str(datetime.datetime.now()) + ': CheckedMain : '+ arg+'\n')
             f.flush()        
             row = await conn.fetchrow("select new_patient_id, project from iap_sessions_to_share WHERE patient_id = $1 AND (status = 'PENDING' OR status = 'PENDINGSHARE' OR status = 'DICOMSENT' or status = 'DICOMSENDING' ) ORDER BY new_patient_id ASC, CREATED DESC LIMIT 1", arg)   
             row2 = await conn.fetchrow("select new_accession, project from iap_sessions_to_share WHERE accession = $1 AND (status = 'PENDING' OR status = 'PENDINGSHARE' OR status = 'DICOMSENT' or status = 'DICOMSENDING' ) ORDER BY new_accession ASC, CREATED DESC LIMIT 1", arg) 
@@ -58,6 +62,7 @@ class CheckedMainHandler(tornado.web.RequestHandler):
         
 def make_app():
     app = tornado.web.Application([
+        (r"/splitdot/(.*)", SplitDotHandler),
         (r"/check/(.*)", CheckedMainHandler),
         (r"/(.*)", MainHandler),
     ])
