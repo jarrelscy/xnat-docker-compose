@@ -9,3 +9,4 @@ hasher/secret.py
 sessfix/secret.py
 .gradle/
 hasher/__pycache__/
+xsync
