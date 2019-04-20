@@ -1,0 +1,28 @@
+Setup: 
+Ensure SSHD GatewayPorts set to yes in /etc/ssh/sshd_config
+Needs docker installed (duh)
+Ensure RESEARCH ports are forwarded using Putty
+
+
+Running:
+Ensure that there is a screen running ~/recycle_empty.sh (only while we are using the CIFS mount to clear recycle bin else this gets really full)
+Ensure that there is a screen running ~/iap/main.py
+Ensure that there is a screen running ~/monitordicom.py
+
+Xsync:
+Ensure that there is a screen running socat TCP4-LISTEN:8083,fork,reuseaddr TCP4:xnat.monash.edu:443
+Ensure that host docker0 interface has IPv4 address 172.17.0.1 (if not you have to alter docker-compose.yml to make extra_hosts: xnat.monash.edu compatible)
+
+How to restart:
+Run ~/xnat-docker-compose/redocker.sh
+
+Errors:
+Might encounter a scenario where experiment / subject is shared into a project but cannot be unshared. Usually because an index is corrupted
+Steps to fix:
+run ~/xnat-docker-compose/reindex.sh
+(this may take a while to complete, if this is taking to long Ctrl-C out of it and run redocker.sh and then try again)
+Then share your subject into a new project
+Then unshare it from the project you want to take it out from 
+
+
+
