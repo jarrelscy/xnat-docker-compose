@@ -26,7 +26,6 @@ services:
       - "8104:8104"
       - "8105:8105"
     volumes:      
-<<<<<<< HEAD
       - /data/xnat/home/logs:/data/xnat/home/logs
       - /data/xnat/home/plugins:/data/xnat/home/plugins
  #     - /data/shared/temp/xnat/cache:/data/xnat/cache
