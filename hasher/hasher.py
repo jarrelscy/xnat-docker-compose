@@ -36,6 +36,7 @@ def sig_handler(server, sig, frame):
     io_loop.add_callback_from_signal(shutdown)
     
     
+
 if not DOCKER:
     connstr = 'postgresql://xnat:xnat@127.0.0.1/xnat'
     f = sys.stdout
@@ -60,7 +61,7 @@ class SplitDotHandler(tornado.web.RequestHandler):
         f.write(str(datetime.datetime.now()) + ': SplitDot : '+ arg+'\n')
         f.flush()
         self.write(arg.split('.')[0])
-        
+
 class CheckedMainHandler(tornado.web.RequestHandler):
     async def get(self, arg):
         #conn = await asyncpg.connect(connstr)

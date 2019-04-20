@@ -19,7 +19,6 @@ ARG SMTP_PASSWORD=
 
 ADD make-xnat-config.sh /usr/local/bin/make-xnat-config.sh
 ADD wait-for-postgres.sh /usr/local/bin/wait-for-postgres.sh
- 
 RUN apk add --no-cache \
         postgresql-client \
         wget \

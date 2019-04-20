@@ -1,21 +1,5 @@
 version: '2'
-#networks:
-#   default:
-#     driver: macvlan
-#     driver_opts:
-#        parent: ens160.30
-#     ipam:
-#        config:
-#          - subnet: 172.22.122.172/24
-#            gateway: 172.22.122.1
-#            ip_range: 172.22.122.173/26
-#     driver_opts:
-#        com.docker.network.driver.mtu: 800
-#networks:
-#   default:
-#     driver: bridge
-#     driver_opts:
-#        com.docker.network.driver.mtu: 1400
+
 services:
   xnat-web:
     build:
@@ -42,6 +26,7 @@ services:
       - "8104:8104"
       - "8105:8105"
     volumes:      
+<<<<<<< HEAD
       - /data/xnat/home/logs:/data/xnat/home/logs
       - /data/xnat/home/plugins:/data/xnat/home/plugins
  #     - /data/shared/temp/xnat/cache:/data/xnat/cache
@@ -98,7 +83,6 @@ services:
       - xnat-nginx      
       - xnat-db
       - xnat-hasher
-      
   # prometheus:
   #   image: prom/prometheus
   #   volumes:

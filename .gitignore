@@ -6,6 +6,6 @@ postgres-data*
 xnat-data*
 webapps/
 hasher/secret.py
-sessfix/secret.py
+sessfix/secret.pyb
 .gradle/
 hasher/__pycache__/
