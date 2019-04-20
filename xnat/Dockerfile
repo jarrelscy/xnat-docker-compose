@@ -36,12 +36,12 @@ RUN apk add --no-cache \
         ${XNAT_ROOT}/cache \
         ${XNAT_ROOT}/ftp \
         ${XNAT_ROOT}/pipeline \
-        ${XNAT_ROOT}/prearchive 
-    
-COPY ./*.war $CATALINA_HOME/webapps/
-RUN /usr/local/bin/make-xnat-config.sh && \
+        ${XNAT_ROOT}/prearchive \
+    && \
+    /usr/local/bin/make-xnat-config.sh && \
     rm /usr/local/bin/make-xnat-config.sh && \
     cd $CATALINA_HOME/webapps/ && \
+    wget https://api.bitbucket.org/2.0/repositories/xnatdev/xnat-web/downloads/xnat-web-${XNAT_VER}.war && \
     cd ${TOMCAT_XNAT_FOLDER} && \
     unzip -o ../xnat-web-${XNAT_VER}.war && \
     rm -f ../xnat-web-${XNAT_VER}.war && \

@@ -5,13 +5,37 @@ import asyncio
 import tornado
 import tornado.ioloop
 import tornado.web
+import tornado.httpserver
+import tornado.options
+from functools import partial
+import time
 import hashlib 
 import datetime
 import sys
 from legacy import legacy_hashes
 from secret import secret
-DOCKER = True
+import signal
 
+DOCKER = True
+MAX_WAIT_SECONDS_BEFORE_SHUTDOWN = 3
+
+def sig_handler(server, sig, frame):
+    io_loop = tornado.ioloop.IOLoop.instance()
+
+    def stop_loop(deadline):
+        now = time.time()
+        if now < deadline:
+            io_loop.add_timeout(now + 1, stop_loop, deadline)
+        else:
+            io_loop.stop()
+
+    def shutdown():
+        server.stop()
+        stop_loop(time.time() + MAX_WAIT_SECONDS_BEFORE_SHUTDOWN)
+
+    io_loop.add_callback_from_signal(shutdown)
+    
+    
 if not DOCKER:
     connstr = 'postgresql://xnat:xnat@127.0.0.1/xnat'
     f = sys.stdout
@@ -73,5 +97,10 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(8888)
+    server = tornado.httpserver.HTTPServer(app)
+    server.listen(8888)
+    
+    signal.signal(signal.SIGTERM, partial(sig_handler, server))
+    signal.signal(signal.SIGINT, partial(sig_handler, server))
+    
     tornado.ioloop.IOLoop.current().start()

@@ -42,12 +42,12 @@ services:
       - "8104:8104"
       - "8105:8105"
     volumes:      
-      - /data/shared/temp/xnat/home/logs:/data/xnat/home/logs
-      - /data/shared/temp/xnat/home/plugins:/data/xnat/home/plugins
+      - /data/xnat/home/logs:/data/xnat/home/logs
+      - /data/xnat/home/plugins:/data/xnat/home/plugins
  #     - /data/shared/temp/xnat/cache:/data/xnat/cache
-      - /data/shared/temp/xnat/archive:/data/xnat/archive
-      - /data/shared/temp/xnat/prearchive:/data/xnat/prearchive
-      - /data/shared.temp/xnat/build:/data/xnat/build
+      - /data/xnat/archive:/data/xnat/archive
+      - /data/xnat/prearchive:/data/xnat/prearchive
+      - /data/xnat/build:/data/xnat/build
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - xnat-db
@@ -86,6 +86,18 @@ services:
     links:
       - xnat-web
       - xnat-db
+      
+  xnat-sessfix:
+    build: ./sessfix
+    volumes:      
+      - /data/xnat/home/logs:/data/xnat/home/logs
+      - /data/xnat/archive:/data/xnat/archive
+      - /data/xnat/prearchive:/data/xnat/prearchive
+      - /data/xnat:/data/xnat      
+    links:
+      - xnat-nginx      
+      - xnat-db
+      - xnat-hasher
       
   # prometheus:
   #   image: prom/prometheus
