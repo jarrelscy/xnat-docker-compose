@@ -1,1 +1,1 @@
-docker-compose down -t 600 && docker-compose build && docker-compose up -d
+./stopdocker.sh && docker-compose build && docker-compose up -d
