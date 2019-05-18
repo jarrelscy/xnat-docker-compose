@@ -355,7 +355,9 @@ def shareRequest(xnat_session, source_project, destination_project, hash, pthash
         logger.info ("Successfully shared subject {} from {} into {}".format(pthash, source_project, destination_project))
         subject_not_shared = False
     except XNATResponseError as e:
-        if 'Already assigned' in str(e): logger.info ('Subject {} already assigned to {}'.format(pthash, destination_project))
+        if 'Already assigned' in str(e): 
+            logger.info ('Subject {} already assigned to {}'.format(pthash, destination_project))
+            subject_not_shared = False # since it awas already assigned you cannot say that it is not shared, else the experiment will not be shared
         else: raise e
     except KeyError as e:
         if 'Could not find ID' in str(e): 
