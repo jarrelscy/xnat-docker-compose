@@ -2,7 +2,8 @@ Setup:
 Ensure SSHD GatewayPorts set to yes in /etc/ssh/sshd_config
 Needs docker installed (duh)
 Ensure RESEARCH ports are forwarded using Putty
-
+Ensure secret.py is in hasher
+EnNsure secret.py is in sessfix needs XNAT_PASSWORD and XNAT_USER variables
 
 Running:
 Ensure that there is a screen running ~/recycle_empty.sh (only while we are using the CIFS mount to clear recycle bin else this gets really full)

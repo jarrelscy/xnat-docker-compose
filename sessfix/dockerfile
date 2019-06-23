@@ -1,5 +1,5 @@
 FROM python:3.6-alpine
-RUN apk add --no-cache --virtual .build-deps gcc python3-dev linux-headers musl-dev mercurial git
+RUN apk add --no-cache --virtual .build-deps gcc python3-dev linux-headers musl-dev mercurial git tzdata
 RUN apk add libxml2-dev libxslt-dev postgresql-dev
 RUN pip install lxml==4.2.5
 WORKDIR /app
