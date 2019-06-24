@@ -3,13 +3,13 @@ from pynetdicom import AE
 from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, JPEGLossless, JPEGLSLossless, JPEG2000Lossless, ExplicitVRBigEndian
 
-ae_titles = {'GEPACSD042': ('172.17.0.1', 4100, 'ACC'),
-             'GEPACSD030': ('172.17.0.1', 4130, 'ACC'),
-             'GEPACSD035': ('172.17.0.1', 4135, 'ACC'),
-             'GEPACSD036': ('172.17.0.1', 4136, 'ACC'),
-             'GEPACSD038': ('172.17.0.1', 4138, 'ACC'),
-             'GEPACSD044': ('172.17.0.1', 4144, 'ACC'),
-             'AHCTAWS': ('172.17.0.1', 4006, 'ACT')
+ae_titles = {'GEPACSD042': ('172.22.7.42', 4100, 'ACC'),
+             'GEPACSD030': ('172.22.7.30', 4100, 'ACC'),
+             'GEPACSD035': ('172.22.7.35', 4100, 'ACC'),
+             'GEPACSD036': ('172.22.7.36', 4100, 'ACC'),
+             'GEPACSD038': ('172.22.7.38', 4100, 'ACC'),
+             'GEPACSD044': ('172.22.7.44', 4100, 'ACC'),
+             'AHCTAWS': ('172.22.17.167', 4006, 'ACT')
             }
 
 ts = [

@@ -24,7 +24,8 @@ services:
      #- "8082:8000"
       - "8000:8000"
       - "8104:8104"
-      - "8105:8105"
+      - "104:104"
+      - "8105:104" 
     volumes:      
       - /data/xnat/home/logs:/data/xnat/home/logs
       - /data/xnat/home/plugins:/data/xnat/home/plugins
@@ -42,6 +43,17 @@ services:
       - XNAT_HOME=/data/xnat/home
     extra_hosts:
       - "xnat.monash.edu:172.17.0.1"
+  xnat-iap:
+    build: ./iap
+    ports:
+      - "8082:8082"
+    volumes:
+      - /data/xnat:/data/xnat
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    links:
+      - xnat-hasher
+      - xnat-db
 
   xnat-db:
     build: ./postgres

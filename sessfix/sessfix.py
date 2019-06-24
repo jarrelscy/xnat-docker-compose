@@ -61,6 +61,11 @@ MAX_NUMBER_RECEIVING = 10
 NUM_POOL_WORKERS = 5
 STOPFILE = '/data/xnat/sessfix.stop'
 OVERRIDETIMEFILE = '/data/xnat/sessfix.override'
+MAXNUMBERRECEIVINGFILE = '/data/xnat/maxnum'
+try:
+    MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE, 'r').read())
+except:
+    logger.warning('Could not read MAX_NUMBER_RECEIVING')
 
 def exit_gracefully(signum, frame):
     if not os.path.exists(STOPFILE):
@@ -563,6 +568,12 @@ if __name__ == '__main__':
                 
                 session.commit()
                 
+                if os.path.exists(MAXNUMBERRECEIVINGFILE):
+                    try:
+                       MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE,'r'))
+                    except:
+                       logger.warning('Could not read maxnumberreceiving file {}', traceback.format_exc())
+
                 if os.path.exists(STOPFILE):                    
                     raise KeyboardInterrupt
                 
