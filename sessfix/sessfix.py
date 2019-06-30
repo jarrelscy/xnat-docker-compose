@@ -64,6 +64,7 @@ OVERRIDETIMEFILE = '/data/xnat/sessfix.override'
 MAXNUMBERRECEIVINGFILE = '/data/xnat/maxnum'
 try:
     MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE, 'r').read())
+    logger.info('Max num receiving set {}'.format(MAX_NUMBER_RECEIVING))
 except:
     logger.warning('Could not read MAX_NUMBER_RECEIVING')
 
@@ -410,7 +411,7 @@ if __name__ == '__main__':
     console.setFormatter(formatter)
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
-    
+    logger.info('Start sessfix')
     # test access
     if os.getuid() != 0:
         raise Exception('Run as sudo')
@@ -571,6 +572,7 @@ if __name__ == '__main__':
                 if os.path.exists(MAXNUMBERRECEIVINGFILE):
                     try:
                        MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE,'r'))
+                       logger.info('Max number receiving is {}'.format(MAX_NUMBER_RECEIVING))
                     except:
                        logger.warning('Could not read maxnumberreceiving file {}', traceback.format_exc())
 
