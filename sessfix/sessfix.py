@@ -465,7 +465,7 @@ if __name__ == '__main__':
                 # 5. issues dicom c-move requests 
                 
                 time.sleep(sleepy_time)
-                # logger.info ('loop')            
+                #logger.info ('loop')            
                 xnat_session.clearcache()
                 # iap_sessions_to_share accessions which are not COMPLETED or FAILED
                 pending_alfred_ids = [Request.patient_id for i in session.query(Request).filter(Request.status != 'COMPLETED').filter(Request.status != 'FAILED')]            
@@ -497,7 +497,7 @@ if __name__ == '__main__':
                 if len(archived_accessions) > 0:
                     logger.info('Archived accessions {}'.format(archived_accessions))
                 
-                # logger.info ('Check existing hashes')
+                logger.info ('Check existing hashes')
                 # alfred_hashes = [row.label for row in select_experimentTable.execute()]
                 # don't pull all alfred hashes as this is going to get really big in the future
                 
@@ -538,7 +538,7 @@ if __name__ == '__main__':
                             i.last_updated = datetime.datetime.now()
                 session.commit()
                 
-                # logger.info ('Write output')
+                #logger.info ('Write output')
                 # check output queue and write to SQL 
                 while True:
                     try:
@@ -564,17 +564,18 @@ if __name__ == '__main__':
                                 i.last_updated = datetime.datetime.now()
                                 i.error = error
                     except queue.Empty:
+                        logger.info('Queue is empty')
                         break
                 
                 
                 session.commit()
-                
+                #logger.info('Max number receiving file is {}'.format(os.path.exists(MAXNUMBERRECEIVINGFILE)))
                 if os.path.exists(MAXNUMBERRECEIVINGFILE):
                     try:
-                       MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE,'r'))
+                       MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE,'r').read().strip())
                        logger.info('Max number receiving is {}'.format(MAX_NUMBER_RECEIVING))
                     except:
-                       logger.warning('Could not read maxnumberreceiving file {}', traceback.format_exc())
+                       logger.warn('Could not read maxnumberreceiving file {}'.format(traceback.format_exc()))
 
                 if os.path.exists(STOPFILE):                    
                     raise KeyboardInterrupt
