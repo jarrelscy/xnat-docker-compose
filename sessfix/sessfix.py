@@ -58,7 +58,7 @@ def findSourceAE(path):
     return None
 
 MAX_NUMBER_RECEIVING = 10
-NUM_POOL_WORKERS = 5
+NUM_POOL_WORKERS = 16
 STOPFILE = '/data/xnat/sessfix.stop'
 OVERRIDETIMEFILE = '/data/xnat/sessfix.override'
 MAXNUMBERRECEIVINGFILE = '/data/xnat/maxnum'
@@ -497,7 +497,7 @@ if __name__ == '__main__':
                 if len(archived_accessions) > 0:
                     logger.info('Archived accessions {}'.format(archived_accessions))
                 
-                logger.info ('Check existing hashes')
+                #logger.info ('Check existing hashes')
                 # alfred_hashes = [row.label for row in select_experimentTable.execute()]
                 # don't pull all alfred hashes as this is going to get really big in the future
                 
@@ -564,7 +564,7 @@ if __name__ == '__main__':
                                 i.last_updated = datetime.datetime.now()
                                 i.error = error
                     except queue.Empty:
-                        logger.info('Queue is empty')
+                        #logger.info('Queue is empty')
                         break
                 
                 
@@ -572,8 +572,10 @@ if __name__ == '__main__':
                 #logger.info('Max number receiving file is {}'.format(os.path.exists(MAXNUMBERRECEIVINGFILE)))
                 if os.path.exists(MAXNUMBERRECEIVINGFILE):
                     try:
-                       MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE,'r').read().strip())
-                       logger.info('Max number receiving is {}'.format(MAX_NUMBER_RECEIVING))
+                       _MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE,'r').read().strip())
+                       if _MAX_NUMBER_RECEIVING != MAX_NUMBER_RECEIVING:
+                           logger.info('Max number receiving is {}'.format(MAX_NUMBER_RECEIVING))
+                       MAX_NUMBER_RECEIVING = _MAX_NUMBER_RECEIVING
                     except:
                        logger.warn('Could not read maxnumberreceiving file {}'.format(traceback.format_exc()))
 
@@ -586,8 +588,22 @@ if __name__ == '__main__':
                     existing_projects = [e.name for e in xnat_session.projects.values()]   
                     # logger.info ('Finish existing hashes')
                     # check iap_sessions_to_share and send DICOM QR request
-                    just_added = []            
-                    for i in session.query(Request).filter(Request.status == 'PENDING').order_by(Request.last_updated):
+                    just_added = []           
+                    request_ids = [i[0] for i in list(session.query(Request.request_id).filter(Request.status == 'PENDING').order_by(Request.last_updated).distinct())]
+                    
+                    requests_pending = [i for i in session.query(Request).filter(Request.status == 'PENDING').order_by(Request.last_updated)]
+                    requests_sorted_by_id = [[i for i in requests_pending if i.request_id == r] for r in request_ids]
+                    request_interleaved = []
+                    not_done = True
+                    while not_done:
+                        not_done = False
+                        for l in requests_sorted_by_id:
+                            if len(l) > 0:
+                                not_done = True
+                                request_interleaved.append(l.pop(0))
+                    # logger.info('request ids {}'.format([i.request_id for i in request_interleaved]))
+                    
+                    for i in request_interleaved:
                         found_in_alfred = False
                         if not (i.new_accession or i.new_patient_id):
                             hash = getHash(i.accession, i.application_entity)
