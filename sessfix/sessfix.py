@@ -60,7 +60,6 @@ def findSourceAE(path):
 MAX_NUMBER_RECEIVING = 10
 NUM_POOL_WORKERS = 16
 STOPFILE = '/data/xnat/sessfix.stop'
-OVERRIDETIMEFILE = '/data/xnat/sessfix.override'
 MAXNUMBERRECEIVINGFILE = '/data/xnat/maxnum'
 try:
     MAX_NUMBER_RECEIVING = int(open(MAXNUMBERRECEIVINGFILE, 'r').read())
@@ -583,17 +582,24 @@ if __name__ == '__main__':
                     raise KeyboardInterrupt
                 
                 hour = datetime.datetime.now().hour
-                if hour >= 20 or hour < 8 or os.path.exists(OVERRIDETIMEFILE):
-                    # logger.info ('Check existing hashes')
-                    existing_projects = [e.name for e in xnat_session.projects.values()]   
-                    # logger.info ('Finish existing hashes')
-                    # check iap_sessions_to_share and send DICOM QR request
-                    just_added = []           
-                    request_ids = [i[0] for i in list(session.query(Request.request_id).filter(Request.status == 'PENDING').order_by(Request.last_updated).distinct())]
-                    
-                    requests_pending = [i for i in session.query(Request).filter(Request.status == 'PENDING').order_by(Request.last_updated)]
+                request_interleaved = []
+                existing_projects = [e.name for e in xnat_session.projects.values()] 
+                request_ids = [i[0] for i in list(session.query(Request.request_id).filter(Request.status == 'PENDING').order_by(Request.last_updated).distinct())]
+                
+                requests_pending = [i for i in session.query(Request).filter(Request.status == 'PENDING').filter(Request.override).order_by(Request.last_updated)]
+                requests_sorted_by_id = [[i for i in requests_pending if i.request_id == r] for r in request_ids]
+                not_done = True
+                while not_done:
+                    not_done = False
+                    for l in requests_sorted_by_id:
+                        if len(l) > 0:
+                            not_done = True
+                            request_interleaved.append(l.pop(0))
+                                
+                                
+                if hour >= 20 or hour < 8:                    
+                    requests_pending = [i for i in session.query(Request).filter(Request.status == 'PENDING').filter(not Request.override).order_by(Request.last_updated)]
                     requests_sorted_by_id = [[i for i in requests_pending if i.request_id == r] for r in request_ids]
-                    request_interleaved = []
                     not_done = True
                     while not_done:
                         not_done = False
@@ -601,50 +607,50 @@ if __name__ == '__main__':
                             if len(l) > 0:
                                 not_done = True
                                 request_interleaved.append(l.pop(0))
-                    # logger.info('request ids {}'.format([i.request_id for i in request_interleaved]))
-                    
-                    for i in request_interleaved:
-                        found_in_alfred = False
-                        if not (i.new_accession or i.new_patient_id):
-                            hash = getHash(i.accession, i.application_entity)
-                            if checkIfHashInAlfred(hash, experimentTable):
-                                try:   
-                                    found_in_alfred = True
-                                    if i.project not in existing_projects:
-                                        logger.warning ('Project {} not found - creating'.format(i.project))
-                                        create_xnat_project(xnat_session, i.project)
-                                        existing_projects = [e.name for e in xnat_session.projects.values()]
-                                    pthash = str(getHash(i.patient_id, ''))
-                                    logger.info('Sharing pt {} study {} with project {}'.format(pthash, hash, i.project))                                
-                                    shareRequest(xnat_session, 'Alfred', i.project, hash, pthash)
-                                    
-                                    i.status = 'COMPLETED'
-                                    i.last_updated = datetime.datetime.now()
-                                    logger.info ('Already downloaded {} assigning to {}'.format(hash, i.project))
-                                except XNATResponseError as e:                    
-                                    errtext = traceback.format_exc()
-                                    logger.error ('Failed {}'.format(hash))
-                                    i.status = 'FAILED'
-                                    i.error = errtext
-                                    
-                                    
-                                    
-                        if found_in_alfred:
-                            pass
-                        elif (i.accession,i.patient_id, i.application_entity) in just_added:
-                            # has something that was just added in the same query
-                            pass
-                        else:
-                            if (num_receiving+len(just_added)) < MAX_NUMBER_RECEIVING and input_queue.qsize() < NUM_POOL_WORKERS:
-                                # submit job to multiprocessing queue 
-                                logger.info ('Submit job to DICOM queue {} {} {} {}'.format(i.accession,i.patient_id, i.application_entity, i.request_id))
-                                input_queue.put((i.accession,i.patient_id, i.application_entity, i.request_id))
-                                i.status = 'DICOMSENDING'
+                
+                just_added = []                 
+                for i in request_interleaved:
+                    found_in_alfred = False
+                    if not (i.new_accession or i.new_patient_id):
+                        hash = getHash(i.accession, i.application_entity)
+                        if checkIfHashInAlfred(hash, experimentTable):
+                            try:   
+                                found_in_alfred = True
+                                if i.project not in existing_projects:
+                                    logger.warning ('Project {} not found - creating'.format(i.project))
+                                    create_xnat_project(xnat_session, i.project)
+                                    existing_projects = [e.name for e in xnat_session.projects.values()]
+                                pthash = str(getHash(i.patient_id, ''))
+                                logger.info('Sharing pt {} study {} with project {}'.format(pthash, hash, i.project))                                
+                                shareRequest(xnat_session, 'Alfred', i.project, hash, pthash)
+                                
+                                i.status = 'COMPLETED'
                                 i.last_updated = datetime.datetime.now()
-                                just_added.append((i.accession,i.patient_id, i.application_entity))
-                            else:
-                                pass                    
-                    session.commit()
+                                logger.info ('Already downloaded {} assigning to {}'.format(hash, i.project))
+                            except XNATResponseError as e:                    
+                                errtext = traceback.format_exc()
+                                logger.error ('Failed {}'.format(hash))
+                                i.status = 'FAILED'
+                                i.error = errtext
+                                
+                                
+                                
+                    if found_in_alfred:
+                        pass
+                    elif (i.accession,i.patient_id, i.application_entity) in just_added:
+                        # has something that was just added in the same query
+                        pass
+                    else:
+                        if (num_receiving+len(just_added)) < MAX_NUMBER_RECEIVING and input_queue.qsize() < NUM_POOL_WORKERS:
+                            # submit job to multiprocessing queue 
+                            logger.info ('Submit job to DICOM queue {} {} {} {}'.format(i.accession,i.patient_id, i.application_entity, i.request_id))
+                            input_queue.put((i.accession,i.patient_id, i.application_entity, i.request_id))
+                            i.status = 'DICOMSENDING'
+                            i.last_updated = datetime.datetime.now()
+                            just_added.append((i.accession,i.patient_id, i.application_entity))
+                        else:
+                            pass                    
+                session.commit()
         except KeyboardInterrupt:
             conn.close()
             if not os.path.exists(STOPFILE):

@@ -14,6 +14,7 @@ class Request(Base):
     created = Column(DateTime)
     new_patient_id = Column(String)
     new_accession = Column(String)
+    override = Column(Boolean)
     
 class PrearchiveExperiment(Base):
     __tablename__ = 'prearchive'
