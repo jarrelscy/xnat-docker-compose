@@ -4,25 +4,43 @@ from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, JPEGLossless, JPEGLSLossless, JPEG2000Lossless, ExplicitVRBigEndian
 import socket
 socket.setdefaulttimeout(7200)
+import sys
 
 
-ae_titles = {'GEPACSD042': ('127.0.0.1', 4100, 'ACC'),
-             'GEPACSD030': ('127.0.0.1', 4130, 'ACC'),
-             'GEPACSD035': ('127.0.0.1', 4135, 'ACC'),
-             'GEPACSD036': ('127.0.0.1', 4136, 'ACC'),
-             'GEPACSD038': ('127.0.0.1', 4138, 'ACC'),
-             'GEPACSD044': ('127.0.0.1', 4144, 'ACC'),
-             'AHCTAWS': ('127.0.0.1', 4006, 'ACT')
-            }
+#ae_titles = {'GEPACSD042': ('172.22.7.42', 4100, 'ACC'),
+#             'GEPACSD030': ('172.22.7.30', 4100, 'ACC'),
+#             'GEPACSD035': ('172.22.7.35', 4100, 'ACC'),
+#             'GEPACSD036': ('172.22.7.36', 4100, 'ACC'),
+#             'GEPACSD038': ('172.22.7.38', 4100, 'ACC'),
+#             'GEPACSD044': ('172.22.7.44', 4100, 'ACC'),
+#             'AHCTAWS': ('172.22.17.167', 4006, 'ACT'),
+#             'TEST': ('172.22.2.13', 104, 'ACC'), 
+#            }
 
-ae_titles = {'GEPACSD042': ('172.22.7.42', 4100, 'ACC'),
-             'GEPACSD030': ('172.22.7.30', 4100, 'ACC'),
-             'GEPACSD035': ('172.22.7.35', 4100, 'ACC'),
-             'GEPACSD036': ('172.22.7.36', 4100, 'ACC'),
-             'GEPACSD038': ('172.22.7.38', 4100, 'ACC'),
-             'GEPACSD044': ('172.22.7.44', 4100, 'ACC'),
-             'AHCTAWS': ('172.22.17.167', 4006, 'ACT')
-            }
+
+def module_property(func):
+    """Decorator to turn module functions into properties.
+    Function names must be prefixed with an underscore."""
+    module = sys.modules[func.__module__]
+
+    def base_getattr(name):
+        raise AttributeError(
+            f"module '{module.__name__}' has no attribute '{name}'")
+
+    old_getattr = getattr(module, '__getattr__', base_getattr)
+
+    def new_getattr(name):
+        if f'_{name}' == func.__name__:
+            return func()
+        else:
+            return old_getattr(name)
+
+    module.__getattr__ = new_getattr
+    return func
+
+@module_property
+def _ae_titles(name):
+    return json.load(open('/data/xnat/ae_titles.json','r'))
 
 ts = [
 JPEGLossless,
@@ -80,7 +98,7 @@ def retrieve(accession, patient_id, ae_title = 'GEPACSD042', ):
     ae = AE('RESEARCH')
     ae.add_requested_context(StudyRootQueryRetrieveInformationModelFind)
     ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove, transfer_syntax=ts)
-    assoc = ae.associate(ae_titles[ae_title][0], ae_titles[ae_title][1], ae_title=ae_title)
+    assoc = ae.associate(__getattr__('ae_titles')[ae_title][0], __getattr__('ae_titles')[ae_title][1], ae_title=ae_title)
     logger.debug(str(assoc))
     try:
         # get study id

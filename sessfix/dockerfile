@@ -1,12 +1,12 @@
-FROM python:3.6-alpine
+FROM python:3.7-alpine
 RUN apk add --no-cache --virtual .build-deps gcc python3-dev linux-headers musl-dev mercurial git
 RUN apk add libxml2-dev libxslt-dev postgresql-dev tzdata
 RUN pip install lxml==4.2.5
 WORKDIR /app
-COPY . /app
+COPY requirements.txt /app/requirements.txt
 WORKDIR /app
 RUN pip install -r requirements.txt
 RUN apk del .build-deps gcc python3-dev linux-headers musl-dev
-
+COPY . /app
 CMD ["python", "sessfix.py"]
 

@@ -1,0 +1,7 @@
+Tornado==5.1.1
+SQLAlchemy==1.2.15
+xnat==0.3.11
+asyncpg==0.18.2
+ldap3==2.5.2
+pyjwt==1.7.1
+requests_threads==0.1.1

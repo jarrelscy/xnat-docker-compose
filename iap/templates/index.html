@@ -1,0 +1,92 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<style>
+ 
+#container{
+        height: 800px;
+        text-align: center;
+        position:absolute; /*it can be fixed too*/
+        left:0; right:0;
+        top:0; bottom:0;
+        margin:auto;
+
+        /*this to solve "the content will not be cut when the window is smaller than the content": */
+        max-width:100%;
+        max-height:100%;
+        overflow:auto;
+    }
+    
+    #container2 {
+      text-align: left;
+      display: inline-block;
+    }
+    
+    input {
+        margin: 10px;
+    }
+    h1 {
+        margin-bottom: 80px;
+    }
+    
+</style>
+</head>
+<title>REASON Radiology</title>
+<link rel="shortcut icon" type="image/png" href="icon.png"/>
+<body>
+<div id='container'>
+<div id='container2'>
+<form id="myform" enctype="multipart/form-data" action="/api/" method="post"> 
+  <h1>Request DICOM files from the Alfred</h1>
+  <h2>Upload CSV file here</h2>
+  <input type="file" name="uploaded_file">
+  <br />  	  
+  <input type="text" name="application_entity" value="GEPACSD038">Application Entity (GEPACSD042, GEPACSD038 or AHCTAWS)<br>
+  <input type="text" name="project">XNAT Project (Leave blank to go into default Alfred project)<br>
+  <input type="checkbox" name="override">Override safe retrieval hours 
+<h2>Alternatively enter numbers here</h2>
+  <div><a>Accession number: </a><input type="text" class="mytextbox" name="acc0001" onkeypress="checkText(this);">
+  <a>Patient ID: </a><input type="text" class="mytextbox" name="pid0001" onkeypress="checkText(this);">
+  <a>New accession number: </a><input type="text" class="mytextbox2" name="nacc0001" onkeypress="checkText(this);">
+  <a>New patient ID: </a><input type="text" class="mytextbox2" name="npid0001" onkeypress="checkText(this);"></div>  
+  <input type="submit" id='myformsubmit' value="Find patients">
+</form>
+</div>
+</div>
+</body>
+<script>
+   startnumchildren = document.getElementById('myform').children.length
+  function insert()
+  {
+    var form = document.getElementById('myform')
+    var n =(form.children.length-startnumchildren)+2
+    var s1 = '<a>Accession number: </a><input type="text" class="mytextbox" name="acc'+'0'.repeat(4-n.toString().length)+n.toString()+'" onKeyPress="checkText(this);">'
+    var s2 = '<a>Patient ID: </a><input type="text" class="mytextbox" name="pid'+'0'.repeat(4-n.toString().length)+n.toString()+'" onKeyPress="checkText(this);">'
+    var s3 = '<a>New accession number: </a><input type="text" class="mytextbox2" name="nacc'+'0'.repeat(4-n.toString().length)+n.toString()+'" onKeyPress="checkText(this);">'
+    var s4 = '<a>New patient ID: </a><input type="text" class="mytextbox2" name="npid'+'0'.repeat(4-n.toString().length)+n.toString()+'" onKeyPress="checkText(this);">'
+    var submitbutton = document.getElementById('myformsubmit')
+    var div = document.createElement('div');
+    div.innerHTML = s1+s2+s3+s4
+    form.insertBefore(div, submitbutton)
+    
+  }
+  
+  function checkText(obj) 
+  {
+    mytextboxes = document.getElementsByClassName('mytextbox')
+    hasEmpty=false;
+    for (var i = 0; i < mytextboxes.length; i++)
+    {
+        if (mytextboxes[i].value == '')
+        {
+            hasEmpty=true;
+            break;
+        }   
+    }
+    if (!hasEmpty)
+        insert()
+    
+    
+    
+  }
+</script>   

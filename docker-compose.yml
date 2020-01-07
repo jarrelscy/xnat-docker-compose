@@ -29,10 +29,12 @@ services:
     volumes:      
       - /data/xnat/home/logs:/data/xnat/home/logs
       - /data/xnat/home/plugins:/data/xnat/home/plugins
+ #    - /data/xnat/home/config:/data/xnat/home/config
  #     - /data/shared/temp/xnat/cache:/data/xnat/cache
       - /data/xnat/archive:/data/xnat/archive
       - /data/xnat/prearchive:/data/xnat/prearchive
       - /data/xnat/build:/data/xnat/build
+      - /data/xnat/cache:/data/xnat/cache
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro

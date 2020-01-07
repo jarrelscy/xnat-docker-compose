@@ -61,6 +61,9 @@ class SplitDotHandler(tornado.web.RequestHandler):
         f.write(str(datetime.datetime.now()) + ': SplitDot : '+ arg+'\n')
         f.flush()
         self.write(arg.split('.')[0])
+class RedirectHandler(tornado.web.RequestHandler):
+    async def get(self, ptid, accid):
+        self.redirect(f'/data/archive/projects/Alfred/subjects/{process(ptid)}/experiments/ACC{process(accid)}')
 
 class CheckedMainHandler(tornado.web.RequestHandler):
     async def get(self, arg):
@@ -89,6 +92,7 @@ def make_app():
     app = tornado.web.Application([
         (r"/splitdot/(.*)", SplitDotHandler),
         (r"/check/(.*)", CheckedMainHandler),
+        (r"/breakglass/(?P<ptid>[^\/]+)/(?P<accid>[^\/]+)", RedirectHandler),
         (r"/(.*)", MainHandler),
     ])
     pool = asyncpg.create_pool(connstr, max_size=512)

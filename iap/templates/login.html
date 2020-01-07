@@ -1,0 +1,50 @@
+<html>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<style>
+div {
+        width: 600px;
+        height: 600px;
+
+        position:absolute; /*it can be fixed too*/
+        left:0; right:0;
+        top:0; bottom:0;
+        margin:auto;
+
+        /*this to solve "the content will not be cut when the window is smaller than the content": */
+        max-width:100%;
+        max-height:100%;
+        overflow:auto;
+    }
+    
+    form {
+        width: 200px;
+        height: 600px;
+
+        position:absolute; /*it can be fixed too*/
+        left:0; right:0;
+        top:0; bottom:0;
+        margin:auto;
+
+        /*this to solve "the content will not be cut when the window is smaller than the content": */
+        max-width:100%;
+        max-height:100%;
+        overflow:auto;
+    }
+    
+    input {
+        margin: 10px;
+    }
+    
+</style>
+<body>
+<div>
+<form method="POST" action="login">
+    <a>Username: </a><input type="text" name="username"><br>
+    <a>Password: </a><input type="password" name="password"><br>
+    <input type="submit" value="Login">
+    
+%XSRF%
+</form>
+</div>
+</body>
+</html>
