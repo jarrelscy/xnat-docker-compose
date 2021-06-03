@@ -3,4 +3,4 @@ pydicom==1.2.1
 psycopg2-binary==2.7.6.1
 git+https://github.com/jarrelscy/pynetdicom.git
 requests==2.21.0
--e hg+https://bitbucket.org/jarrelscy/xnatpy#egg=xnatpy
+git+https://gitlab.com/radiology/infrastructure/xnatpy.git
